@@ -106,12 +106,16 @@ class TUMDataset:
             ),
         )
 
+        offset_gt_camera = self.gt_poses[0]
+        pose_in_camera_frame = np.linalg.inv(offset_gt_camera) @ pose
+        pcd = pcd.transform(pose_in_camera_frame)
+
         xyz = np.array(pcd.points)
         colors = np.array(pcd.colors)
 
         if self.get_color:
-            return xyz, colors, pose
-        return xyz, pose
+            return xyz, colors, pose_in_camera_frame
+        return xyz, pose_in_camera_frame
 
     def __len__(self):
-        return len(self.matches)
+        return min(len(self.matches), len(self.gt_poses))
